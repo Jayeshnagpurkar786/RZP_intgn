@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/index.js"
+    }
+  ],
+  "env": {
+    "DATABASE_USER": "@database-user",
+    "DATABASE_HOST": "ep-calm-brook-a1zx9lar-pooler.ap-southeast-1.aws.neon.tech",
+    "DATABASE_NAME": "verceldb",
+    "DATABASE_PASSWORD": "@database-password",
+    "DATABASE_PORT": "5432",
+    "PORT": "4000",
+    "RAZORPAY_KEY_ID": "@razorpay-key-id",
+    "RAZORPAY_KEY_SECRET": "@razorpay-key-secret"
+  }
+}
