@@ -1,6 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const dotenv = require("dotenv");
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 
@@ -38,9 +42,15 @@ const errorHandler = (err, req, res, next) => {
   res.status(500).json({ error: "Internal Server Error", details: err.message });
 };
 
+app.use(errorHandler);
+
 // Middleware to capture raw body for webhook requests
 app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
 
-app.use(errorHandler);
+// Start the server
+const port = process.env.PORT || 4000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 
 module.exports = app;
