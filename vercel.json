@@ -11,15 +11,5 @@
       "src": "/api/(.*)",
       "dest": "backend/index.js"
     }
-  ],
-  "env": {
-    "DATABASE_USER": "@DATABASE_USER",
-    "DATABASE_HOST": "ep-calm-brook-a1zx9lar-pooler.ap-southeast-1.aws.neon.tech",
-    "DATABASE_NAME": "verceldb",
-    "DATABASE_PASSWORD": "@DATABASE_PASSWORD",
-    "DATABASE_PORT": "5432",
-    "PORT": "4000",
-    "RAZORPAY_KEY_ID": "@RAZORPAY_KEY_ID",
-    "RAZORPAY_KEY_SECRET": "@RAZORPAY_KEY_SECRET"
-  }
+  ]
 }
