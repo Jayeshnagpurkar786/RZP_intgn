@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const routes = require('./routes/routes');
 
 // Load environment variables
 dotenv.config();
@@ -23,16 +24,19 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Routes
-const route = require("./routes/routes");
-app.use("/api", route);
+const route = require("./routes/routes"); // Ensure your routes are defined correctly in routes.js
+app.use("/api", route); // This will prefix all routes in routes.js with /api
 
 // Health check route for checking if API is up
 app.get("/api", (req, res) => {
   res.status(200).json({ status: "Ok", message: "API is running successfully" });
 });
 
-// Catch-all route for unknown routes
-app.use((req, res, next) => {
+// Middleware to capture raw body for webhook requests
+app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
+
+// Catch-all route for unknown routes should be at the end
+app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
@@ -42,8 +46,7 @@ const errorHandler = (err, req, res, next) => {
   res.status(500).json({ error: "Internal Server Error", details: err.message });
 };
 
-// Middleware to capture raw body for webhook requests
-app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
+app.use(errorHandler); // Use the error handler middleware
 
 // Start the server
 const port = process.env.PORT || 4000;
