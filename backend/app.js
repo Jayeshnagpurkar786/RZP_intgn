@@ -42,8 +42,6 @@ const errorHandler = (err, req, res, next) => {
   res.status(500).json({ error: "Internal Server Error", details: err.message });
 };
 
-app.use(errorHandler);
-
 // Middleware to capture raw body for webhook requests
 app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
 
@@ -53,4 +51,5 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
+// Export the app for testing or further use
 module.exports = app;
