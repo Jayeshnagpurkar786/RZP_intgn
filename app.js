@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const favicon = require('serve-favicon');
 const routes = require('./routes/routes');
 
 // Load environment variables
