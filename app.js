@@ -2,8 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const favicon = require('serve-favicon');
-const path = require('path');
 const routes = require('./routes/routes');
 
 // Load environment variables
@@ -25,14 +23,8 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Serve favicon
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico'))); // Adjust this path as necessary
-
-// Respond to favicon requests if not provided
-app.get('/favicon.ico', (req, res) => res.status(204)); // Respond with no content for favicon
-
 // Routes
-app.use("/api", routes); // This will prefix all routes in routes.js with /api
+app.use("/api", routes);
 
 // Health check route for checking if API is up
 app.get("/api", (req, res) => {
