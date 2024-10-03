@@ -9,6 +9,12 @@ dotenv.config();
 
 const app = express();
 
+// Define your API route
+app.get('/api/hello', (req, res) => {
+  res.send('Hello World!');
+});
+
+
 // CORS configuration
 const corsOptions = {
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
