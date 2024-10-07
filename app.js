@@ -1,14 +1,15 @@
-const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const { pool } = require("./models/database"); // Adjust the path based on your structure
-const Razorpay = require("razorpay");
-const axios = require("axios");
+import express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import Razorpay from "razorpay";
+import axios from "axios";
+import { pool } from "./models/database.js"; // Ensure the file extension is included
+import { createPayment, verifyPayment, paymentRefund, getAllOrders, getAllUserData, webhook } from './controllers/paymentMethod.js';
 
-// Load environment variables
-dotenv.config();
+dotenv.config(); // Load environment variables
+
+const app = express();
 
 // CORS configuration
 const corsOptions = {
@@ -24,7 +25,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Health check route for checking if API is up
+// Health check route
 app.get("/api", (req, res) => {
   res.status(200).json({ status: "Ok", message: "API is running successfully" });
 });
@@ -39,7 +40,6 @@ app.post('/webhook', async (req, res) => {
 
   const { id: payment_id, amount, currency, status, order_id, description, email, contact } = entity;
 
-  // Check for existing order in the rzp_payments table
   const existingLogResult = await pool.query(
     `SELECT * FROM rzp_payments WHERE payment_id = $1`,
     [payment_id]
@@ -55,11 +55,9 @@ app.post('/webhook', async (req, res) => {
       return res.status(200).json({ status: "success", message: "Payment already captured" });
     }
   } else {
-    // Insert new order into the rzp_payments table
     await pool.query(
-      `INSERT INTO rzp_payments 
-        (order_id, amount, currency, status, payment_id, description, email, contact) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      `INSERT INTO rzp_payments (order_id, amount, currency, status, payment_id, description, email, contact) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [order_id, amount, currency, status, payment_id, description, email, contact]
     );
   }
@@ -86,21 +84,18 @@ app.post('/api/create-order', async (req, res) => {
     });
 
     const options = {
-      amount: amount * 100, // Amount in paise
+      amount: amount * 100,
       currency: "INR",
-      receipt: `receipt_${Date.now()}`, // Correct usage of backticks
+      receipt: `receipt_${Date.now()}`,
     };
 
-    // Create order with Razorpay
     const order = await razorpay.orders.create(options);
 
-    // Insert order into database
     const queryText = `INSERT INTO orders (order_id, amount, currency, receipt, status) 
                        VALUES ($1, $2, $3, $4, $5) RETURNING *`;
     const values = [order.id, amount, order.currency, order.receipt, "created"];
     await pool.query(queryText, values);
 
-    // Respond with the created order
     res.status(200).json(order);
   } catch (error) {
     console.error("Error creating Razorpay order:", error);
@@ -117,7 +112,6 @@ app.post('/api/verify-payment', async (req, res) => {
   }
 
   try {
-    // Update order in the database
     const queryText = `UPDATE orders SET status = $1, payment_id = $2 WHERE order_id = $3 RETURNING *`;
     const values = ["paid", razorpay_payment_id, razorpay_order_id];
     const dbRes = await pool.query(queryText, values);
@@ -137,7 +131,7 @@ async function refundPayment(paymentId, amount) {
   try {
     const response = await axios.post(
       'https://api.razorpay.com/v1/refunds',
-      { payment_id: paymentId, amount: amount * 100 }, // Amount in paise
+      { payment_id: paymentId, amount: amount * 100 },
       {
         auth: {
           username: process.env.RAZORPAY_KEY_ID,
@@ -151,11 +145,11 @@ async function refundPayment(paymentId, amount) {
                              VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
     const refundValues = [
       response.data.id,
-      response.data.amount / 100, // Convert paise back to rupees
+      response.data.amount / 100,
       response.data.currency,
       response.data.payment_id,
       response.data.status,
-      new Date(response.data.created_at * 1000), // Convert Unix timestamp
+      new Date(response.data.created_at * 1000),
     ];
     await pool.query(refundQueryText, refundValues);
 
@@ -210,7 +204,7 @@ app.get('/api/get-all-user-data', async (req, res) => {
   }
 });
 
-// Catch-all route for unknown routes should be at the end
+// Catch-all route for unknown routes
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
@@ -229,5 +223,4 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-// Export the app for testing or further use
-module.exports = app;
+export default app;

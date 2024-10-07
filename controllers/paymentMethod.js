@@ -1,6 +1,6 @@
-const { pool } = require("../models/database");
-const Razorpay = require("razorpay");
-const axios = require("axios");
+import { pool } from '../models/database.js'; // Use ES module import
+import Razorpay from 'razorpay';
+import axios from 'axios';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -8,7 +8,7 @@ const razorpay = new Razorpay({
 });
 
 // Create Payment
-exports.createPayment = async (req, res) => {
+export const createPayment = async (req, res) => {
   try {
     const { amount } = req.body;
 
@@ -21,7 +21,7 @@ exports.createPayment = async (req, res) => {
     const options = {
       amount: amount * 100, // Amount in paise
       currency: "INR",
-      receipt: `receipt_${Date.now()}`, // Correct usage of backticks
+      receipt: `receipt_${Date.now()}`,
     };
 
     // Create order with Razorpay
@@ -42,7 +42,7 @@ exports.createPayment = async (req, res) => {
 };
 
 // Verify Payment
-exports.verifyPayment = async (req, res) => {
+export const verifyPayment = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -100,7 +100,7 @@ async function refundPayment(paymentId, amount) {
 }
 
 // Payment Refund Endpoint
-exports.paymentRefund = async (req, res) => {
+export const paymentRefund = async (req, res) => {
   const { paymentId, amount } = req.body;
   if (!paymentId || !amount) {
     return res.status(400).json({ message: 'Payment ID and amount are required' });
@@ -115,7 +115,7 @@ exports.paymentRefund = async (req, res) => {
 };
 
 // Fetch All Orders
-exports.getAllOrders = async (req, res) => {
+export const getAllOrders = async (req, res) => {
   try {
     const queryText = 'SELECT * FROM orders ORDER BY id DESC';
     const dbRes = await pool.query(queryText);
@@ -127,9 +127,9 @@ exports.getAllOrders = async (req, res) => {
 };
 
 // Fetch All User Data
-exports.getAllUserData = async (req, res) => {
+export const getAllUserData = async (req, res) => {
   try {
-    const queryText = 'SELECT  order_id, amount, currency, status, payment_id FROM rzp_payments ORDER BY order_id DESC';
+    const queryText = 'SELECT order_id, amount, currency, status, payment_id FROM rzp_payments ORDER BY order_id DESC';
     const dbRes = await pool.query(queryText);
 
     if (dbRes.rows.length === 0) {
@@ -143,9 +143,8 @@ exports.getAllUserData = async (req, res) => {
   }
 };
 
-
 // Webhook
-exports.webhook = async (req, res) => {
+export const webhook = async (req, res) => {
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
   try {

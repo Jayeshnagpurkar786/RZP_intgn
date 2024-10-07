@@ -1,10 +1,9 @@
-const { Pool } = require('pg');
-const dotenv = require('dotenv');
+import pkg from 'pg';
+const { Pool } = pkg;
+import dotenv from 'dotenv';
 
-// Load environment variables from .env file
 dotenv.config();
 
-// Create a new pool instance
 const pool = new Pool({
   user: process.env.DATABASE_USER,
   host: process.env.DATABASE_HOST,
@@ -12,22 +11,20 @@ const pool = new Pool({
   password: process.env.DATABASE_PASSWORD,
   port: process.env.DATABASE_PORT,
   ssl: {
-    rejectUnauthorized: false // Set to true if you want to enforce SSL validation
-  }
+    rejectUnauthorized: false,
+  },
 });
 
-// Connect to the database
 pool.connect()
   .then(() => console.log('Connected to the database'))
   .catch((err) => {
     console.error('Connection error', err.stack);
-    process.exit(1); // Exit the process with an error code
+    process.exit(1);
   });
 
-// Handle unexpected errors on idle clients
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
-  process.exit(-1); // Exit the process with an error code
+  process.exit(-1);
 });
 
 pool.query('SELECT NOW()', (err, res) => {
@@ -38,5 +35,4 @@ pool.query('SELECT NOW()', (err, res) => {
   }
 });
 
-// Export the pool directly
-module.exports = { pool };
+export { pool }; // Use ES module export
