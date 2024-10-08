@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Health check route
-app.get("/api", (req, res) => {
+app.get("/", (req, res) => {
   res.status(200).json({ status: "Ok", message: "API is running successfully" });
 });
 
