@@ -7,9 +7,12 @@ import axios from "axios";
 import { pool } from "./models/database.js"; // Ensure the file extension is included
 import { createPayment, verifyPayment, paymentRefund, getAllOrders, getAllUserData, webhook } from './controllers/paymentMethod.js';
 
+console.log("RUN------11-1---->")
+
 dotenv.config(); // Load environment variables
 
 const app = express();
+console.log("RUN------11----->")
 
 // CORS configuration
 const corsOptions = {
@@ -19,16 +22,25 @@ const corsOptions = {
   allowedHeaders: 'Content-Type,Authorization'
 };
 
+console.log("RUN------22----->")
+
 app.use(cors(corsOptions));
+
+console.log("RUN------33----->")
 
 // Middleware
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+console.log("RUN------44----->")
+
 // Health check route
 app.get("/", (req, res) => {
   res.status(200).json({ status: "Ok", message: "API is running successfully" });
 });
+
+console.log("RUN------55----->")
+
 
 // Middleware to capture raw body for webhook requests
 app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
