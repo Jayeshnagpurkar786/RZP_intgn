@@ -17,9 +17,6 @@
     "pg": "^8.8.0",
     "razorpay": "^2.9.4"
   },
-  "engines": {
-    "node": "18.x"
-  },
   "author": "",
   "license": "ISC",
   "_schema": {
