@@ -1,4 +1,4 @@
-import { pool } from '../models/database.js'; // Use ES module import
+import { pool } from '../models/database.js'; 
 import Razorpay from 'razorpay';
 import axios from 'axios';
 
